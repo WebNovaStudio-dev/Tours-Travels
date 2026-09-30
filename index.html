@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wanderlust | Travel Agency</title>
+<meta name="description" content="Wanderlust — custom itineraries across 100+ destinations. Flights, stays, guides and visas, handled.">
+
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Fonts: Fraunces (display serif) + Archivo (body) + IBM Plex Mono (documents) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          display: ['Fraunces', 'Georgia', 'serif'],
+          sans: ['Archivo', 'sans-serif'],
+          mono: ['"IBM Plex Mono"', 'monospace'],
+        },
+        colors: {
+          paper: { 50:'#FCF9F2', 100:'#F6F1E8', 200:'#EFE6D7', 300:'#E5D9C5' },
+          ink:   { 400:'#8B8271', 500:'#6E6553', 700:'#3E3830', 900:'#1E1A15' },
+          clay:  { 300:'#E3A87D', 400:'#D2763F', 500:'#C05A2A', 600:'#A0461F', 700:'#7F3717' },
+        }
+      }
+    }
+  }
+</script>
+
+<style>
+  html { scroll-padding-top: 92px; }
+
+  ::-webkit-scrollbar { width: 9px; }
+  ::-webkit-scrollbar-track { background: #F6F1E8; }
+  ::-webkit-scrollbar-thumb { background: #C7BCA6; border-radius: 99px; }
+  ::-webkit-scrollbar-thumb:hover { background: #C05A2A; }
+
+  /* ---------- Labels ---------- */
+  .eyebrow {
+    display: block; font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px; letter-spacing: .3em; text-transform: uppercase;
+    color: #A0461F; font-weight: 500;
+  }
+  .m-label {
+    font-family: 'IBM Plex Mono', monospace; font-size: 9.5px;
+    letter-spacing: .18em; text-transform: uppercase; color: #8B8271;
+  }
+
+  /* ---------- Nav ---------- */
+  #mainNav {
+    background: rgba(246, 241, 232, .78);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(30, 26, 21, .08);
+  }
+  #mainNav.scrolled { background: rgba(246, 241, 232, .96); }
+  .nav-row { padding-top: 1rem; padding-bottom: 1rem; transition: padding .35s ease; }
+  #mainNav.scrolled .nav-row { padding-top: .55rem; padding-bottom: .55rem; }
+
+  .nav-link { position: relative; }
+  .nav-link::after {
+    content: ''; position: absolute; left: 0; bottom: -5px;
+    height: 2px; width: 0; background: #C05A2A; transition: width .3s ease;
+  }
+  .nav-link:hover::after, .nav-link.active::after { width: 100%; }
+  .nav-link.active { color: #A0461F; }
+
+  /* ---------- Scroll reveals ---------- */
+  .reveal {
+    opacity: 0; transform: translateY(30px);
+    transition: opacity .85s cubic-bezier(.16, 1, .3, 1), transform .85s cubic-bezier(.16, 1, .3, 1);
+    will-change: opacity, transform;
+  }
+  .reveal.active { opacity: 1; transform: translateY(0); }
+
+  /* ---------- Departures board ---------- */
+  .board-strip { overflow: hidden; }
+  .board-track { display: flex; width: max-content; animation: board 38s linear infinite; }
+  .board-strip:hover .board-track { animation-play-state: paused; }
+  @keyframes board { to { transform: translateX(-50%); } }
+  .b-dot { width: 4px; height: 4px; border-radius: 99px; background: #C05A2A; opacity: .65; flex-shrink: 0; }
+  .board-item:hover .b-dest { color: #E3A87D; }
+
+  /* ---------- Spinning badge ---------- */
+  .spin-badge {
+    position: absolute; width: 122px; height: 122px; border-radius: 50%;
+    background: #FCF9F2; border: 1px solid rgba(30, 26, 21, .16);
+    display: grid; place-items: center; z-index: 10;
+    box-shadow: 0 10px 28px rgba(30, 26, 21, .16);
+    transition: transform .3s ease;
+  }
+  .spin-badge:hover { transform: scale(1.05); }
+  .spin-badge svg { position: absolute; inset: 0; animation: spin 18s linear infinite; }
+  .spin-badge text {
+    font-family: 'IBM Plex Mono', monospace; font-size: 9px;
+    letter-spacing: 2.4px; fill: #A0461F; text-transform: uppercase;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ---------- Boarding-pass bits ---------- */
+  .barcode {
+    height: 32px; width: 112px;
+    background: repeating-linear-gradient(90deg,
+      #1E1A15 0 2px, transparent 2px 5px, #1E1A15 5px 6px,
+      transparent 6px 9px, #1E1A15 9px 13px, transparent 13px 15px,
+      #1E1A15 15px 16px, transparent 16px 20px);
+  }
+  .perfo { position: relative; border-top: 2px dashed rgba(30, 26, 21, .28); }
+  .perfo::before, .perfo::after {
+    content: ''; position: absolute; top: -13px; width: 26px; height: 26px;
+    border-radius: 999px; background: var(--notch, #EFE6D7);
+    border: 1px solid rgba(30, 26, 21, .14);
+  }
+  .perfo::before { left: -13px; }
+  .perfo::after { right: -13px; }
+
+  .stamp {
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 600;
+    letter-spacing: .22em; text-transform: uppercase; color: #A0461F;
+    border: 2px solid #C05A2A; background: rgba(252, 249, 242, .92);
+    padding: 6px 12px; transform: rotate(6deg); border-radius: 4px;
+    box-shadow: 0 6px 16px rgba(30, 26, 21, .25);
+  }
+
+  /* ---------- Package cards & filters ---------- */
+  .pkg-card {
+    opacity: 1; transform: none;
+    transition: opacity .35s ease, transform .35s ease, box-shadow .35s ease;
+  }
+  .pkg-card.pkg-out { opacity: 0; transform: scale(.96) translateY(6px); }
+  .fbtn {
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 500;
+    letter-spacing: .18em; text-transform: uppercase;
+    padding: .55rem 1.15rem; border-radius: 999px; cursor: pointer;
+    border: 1px solid rgba(30, 26, 21, .25); color: #3E3830;
+    background: transparent; transition: all .25s ease;
+  }
+  .fbtn:hover { border-color: #C05A2A; color: #A0461F; }
+  .fbtn.active { background: #1E1A15; border-color: #1E1A15; color: #F6F1E8; }
+
+  /* ---------- Form fields ---------- */
+  .field {
+    width: 100%; padding: .8rem 1rem;
+    background: #FCF9F2; border: 1px solid rgba(30, 26, 21, .18);
+    border-radius: .75rem; color: #1E1A15; font-size: .85rem; outline: none;
+    transition: border-color .25s ease, box-shadow .25s ease;
+  }
+  .field::placeholder { color: #8B8271; }
+  .field:focus { border-color: #C05A2A; box-shadow: 0 0 0 3px rgba(192, 90, 42, .14); }
+  select.field option { background: #FCF9F2; color: #1E1A15; }
+  .flash { border-color: #C05A2A !important; box-shadow: 0 0 0 3px rgba(192, 90, 42, .18); }
+  .step-btn {
+    width: 2.4rem; height: 2.4rem; border: 1px solid rgba(30, 26, 21, .18);
+    border-radius: .65rem; color: #3E3830; display: grid; place-items: center;
+    cursor: pointer; transition: all .2s ease; background: #FCF9F2;
+  }
+  .step-btn:hover:not(:disabled) { border-color: #C05A2A; color: #A0461F; }
+  .step-btn:disabled { opacity: .35; cursor: not-allowed; }
+
+  #ticketSwap { transition: opacity .22s ease, transform .22s ease; }
+  #ticketSwap.switching { opacity: 0; transform: translateY(6px); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .board-track, .spin-badge svg, .reveal { animation: none !important; }
+    .reveal { opacity: 1; transform: none; transition: none; }
+  }
+</style>
+</head>
+
+<body class="bg-paper-100 text-ink-700 font-sans antialiased overflow-x-clip selection:bg-clay-500 selection:text-paper-50">
+
+<!-- Booking toast -->
+<div id="bookingToast" class="fixed bottom-24 right-5 sm:right-6 z-[80] transition-all duration-400 opacity-0 translate-y-4 pointer-events-none">
+  <div class="relative bg-ink-900 text-paper-100 max-w-sm px-5 py-4 rounded-2xl border border-white/10 shadow-2xl flex items-start gap-4">
+    <button id="toastClose" class="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-paper-100 text-ink-700 border border-ink-900/15 hover:text-clay-600 flex items-center justify-center" aria-label="Dismiss">
+      <i class="fa-solid fa-xmark text-[10px]"></i>
+    </button>
+    <div class="w-10 h-10 rounded-full bg-clay-500 text-paper-50 flex items-center justify-center shrink-0">
+      <i class="fa-solid fa-passport"></i>
+    </div>
+    <div>
+      <p class="text-sm font-bold text-paper-100">Booking request received</p>
+      <p id="toastSub" class="text-xs text-paper-100/70 mt-1 leading-relaxed">Our travel designers will confirm within 24 hours.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Back to top -->
+<button id="toTop" class="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-ink-900 text-paper-100 hover:bg-clay-600 flex items-center justify-center transition-all duration-300 opacity-0 translate-y-4 pointer-events-none" aria-label="Back to top">
+  <i class="fa-solid fa-chevron-up text-xs"></i>
+</button>
+
+<!-- ===================== NAV ===================== -->
+<nav id="mainNav" class="fixed top-0 inset-x-0 z-50">
+  <div class="nav-row max-w-7xl mx-auto px-6 flex items-center justify-between">
+
+    <a href="#home" class="font-display text-2xl text-ink-900 leading-none">
+      Wander<span class="italic font-medium text-clay-600">lust</span>
+    </a>
+
+    <div class="hidden md:flex items-center gap-9 font-mono uppercase text-[10.5px] tracking-[0.18em] text-ink-500">
+      <a href="#home" class="nav-link hover:text-ink-900 transition-colors">Home</a>
+      <a href="#about" class="nav-link hover:text-ink-900 transition-colors">About</a>
+      <a href="#destinations" class="nav-link hover:text-ink-900 transition-colors">Destinations</a>
+      <a href="#packages" class="nav-link hover:text-ink-900 transition-colors">Packages</a>
+      <a href="#services" class="nav-link hover:text-ink-900 transition-colors">Services</a>
+    </div>
+
+    <a href="#contact" class="hidden md:inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-ink-900 text-paper-100 font-semibold text-[11px] uppercase tracking-[0.15em] hover:bg-clay-600 hover:-translate-y-0.5 active:translate-y-0 transition-all shadow-lg shadow-ink-900/15">
+      Book Now
+    </a>
+
+    <button id="mobileMenuBtn" aria-label="Toggle navigation menu" class="md:hidden text-ink-700 hover:text-clay-600 p-2 focus:outline-none">
+      <i class="fa-solid fa-bars text-lg" id="menuToggleIcon"></i>
+    </button>
+  </div>
+
+  <!-- Mobile drawer -->
+  <div id="mobileDrawer" class="hidden md:hidden px-6 pt-3 pb-8 bg-paper-100/97 border-b border-ink-900/10 backdrop-blur-xl">
+    <div class="flex flex-col gap-4 font-mono uppercase text-[11px] tracking-[0.18em] text-ink-700">
+      <a href="#home" class="mobile-nav-link py-2 hover:text-clay-600">Home</a>
+      <a href="#about" class="mobile-nav-link py-2 hover:text-clay-600">About</a>
+      <a href="#destinations" class="mobile-nav-link py-2 hover:text-clay-600">Destinations</a>
+      <a href="#packages" class="mobile-nav-link py-2 hover:text-clay-600">Packages</a>
+      <a href="#services" class="mobile-nav-link py-2 hover:text-clay-600">Services</a>
+      <a href="#contact" class="mobile-nav-link text-center w-full mt-2 py-3.5 rounded-full bg-ink-900 text-paper-100 font-semibold tracking-[0.2em] uppercase">
+        Book Now
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- ===================== HERO ===================== -->
+<header id="home" class="relative pt-32 lg:pt-40 pb-28">
+  <div class="max-w-7xl mx-auto px-6 grid lg:grid-cols-12 gap-16 lg:gap-12 items-center">
+
+    <!-- Left: type -->
+    <div class="lg:col-span-7">
+      <div class="reveal" data-delay="60">
+        <span class="eyebrow">Travel agency — est. 2015 — New York</span>
+      </div>
+
+      <h1 class="reveal mt-7 font-display font-medium text-ink-900 text-[3.4rem] leading-[0.98] sm:text-7xl lg:text-[6.2rem] tracking-[-0.02em]" data-delay="160">
+        Explore the world<br>
+        <span class="italic font-medium text-clay-500">with us.</span>
+      </h1>
+
+      <p class="reveal mt-7 max-w-lg text-base sm:text-lg font-light leading-relaxed" data-delay="300">
+        Your journey of a thousand miles begins with a single click — we handle
+        the routes, the rooms, and the small print, so you can pack light and wander far.
+      </p>
+
+      <div class="reveal mt-10 flex flex-col sm:flex-row gap-4" data-delay="420">
+        <a href="#packages" class="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-full bg-ink-900 text-paper-100 font-semibold text-xs uppercase tracking-[0.15em] hover:bg-clay-600 hover:-translate-y-0.5 active:translate-y-0 transition-all shadow-lg shadow-ink-900/15">
+          Explore Packages
+          <i class="fa-solid fa-arrow-right text-[10px]"></i>
+        </a>
+        <a href="#contact" class="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-full border border-ink-900/25 text-ink-900 font-semibold text-xs uppercase tracking-[0.15em] hover:border-clay-500 hover:text-clay-600 transition-all">
+          Plan My Trip
+        </a>
+      </div>
+    </div>
+
+    <!-- Right: framed arch + boarding pass + badge -->
+    <div class="lg:col-span-5 reveal" data-delay="280">
+      <div class="relative max-w-[440px] mx-auto lg:ml-auto">
+
+        <div class="rounded-t-[999px] rounded-b-[2rem] p-3 bg-paper-50 border border-ink-900/15 shadow-[0_24px_60px_-24px_rgba(30,26,21,0.35)]">
+          <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=1000" alt="Santorini, Greece — blue domes above the caldera" class="w-full h-[400px] sm:h-[480px] lg:h-[560px] object-cover rounded-t-[999px] rounded-b-[1.7rem]">
+        </div>
+
+        <!-- Rotating circular badge -->
+        <a href="#destinations" class="spin-badge -left-6 sm:-left-10 top-14" aria-label="Scroll to destinations">
+          <svg viewBox="0 0 122 122" aria-hidden="true">
+            <defs><path id="badgeCircle" d="M61,61 m-46,0 a46,46 0 1,1 92,0 a46,46 0 1,1 -92,0"/></defs>
+            <text><textPath href="#badgeCircle">explore the world • wanderlust • since 2015 •</textPath></text>
+          </svg>
+          <i class="fa-solid fa-arrow-down text-clay-600 text-sm" aria-hidden="true"></i>
+        </a>
+
+        <!-- Rotating boarding pass -->
+        <div id="heroTicket" class="mt-8 lg:mt-0 lg:absolute lg:-bottom-12 lg:-left-6 xl:-left-12 w-[290px] mx-auto lg:mx-0 rotate-[-2deg] hover:rotate-0 transition-transform duration-300">
+          <div class="bg-paper-50 border border-ink-900/15 rounded-xl shadow-[0_18px_40px_-16px_rgba(30,26,21,0.4)]">
+            <div class="flex items-center justify-between px-4 pt-3.5 pb-2">
+              <span class="eyebrow !text-[8.5px]">Next departure</span>
+              <span id="heroCode" class="m-label !text-clay-600">WL·01</span>
+            </div>
+            <div id="ticketSwap" class="px-4 pb-3">
+              <p id="heroDest" class="font-display text-xl font-medium text-ink-900">Santorini, Greece</p>
+              <p id="heroMeta" class="m-label mt-1.5">6 days · 2 travelers</p>
+              <div class="flex items-end justify-between mt-3">
+                <p class="font-mono text-[11px] text-ink-500">FROM <span id="heroPrice" class="text-clay-600 font-semibold text-sm">$1,340</span></p>
+                <div class="barcode"></div>
+              </div>
+            </div>
+            <div class="perfo !border-t-0 border-b-2 border-dashed border-ink-900/25 rounded-b-xl">
+              <p class="m-label text-center py-2 !tracking-[0.4em]">Gate · anywhere</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ===================== DEPARTURES BOARD ===================== -->
+<div class="bg-ink-900 border-y-4 border-double border-ink-900/20">
+  <div class="flex items-stretch">
+    <div class="shrink-0 flex items-center gap-3 px-5 sm:px-6 border-r border-white/10">
+      <i class="fa-solid fa-plane text-clay-400 text-xs" aria-hidden="true"></i>
+      <span class="font-mono text-[10px] tracking-[0.25em] uppercase text-clay-300 whitespace-nowrap">Departures</span>
+    </div>
+    <div class="board-strip flex-1 py-4">
+      <div class="board-track">
+        <div class="flex items-center gap-5 pr-10 font-mono text-[11px] tracking-[0.14em] uppercase whitespace-nowrap">
+          <a href="#packages" class="board-item flex items-center gap-5"><span class="text-clay-300">WL 018</span><i class="fa-solid fa-plane text-clay-400 text-[10px]"></i><span class="b-dest text-paper-100 transition-colors">Bali</span><span class="b-dot"></span><span class="text-paper-100/55">5 days</span><span class="b-dot"></span><span class="text-clay-300 font-semibold">from $1,200</span><span class="text-paper-100/85 font-semibold">Book →</span></a>
+          <a href="#packages" class="board-item flex items-center gap-5"><span class="text-clay-300">WL 024</span><i class="fa-solid fa-plane text-clay-400 text-[10px]"></i><span class="b-dest text-paper-100 transition-colors">Paris</span><span class="b-dot"></span><span class="text-paper-100/55">7 days</span><span class="b-dot"></span><span class="text-clay-300 font-semibold">from $2,100</span><span class="text-paper-100/85 font-semibold">Book →</span></a>
+          <a href="#packages" class="board-item flex items-center gap-5"><span class="text-clay-300">WL 032</span><i class="fa-solid fa-plane text-clay-400 text-[10px]"></i><span class="b-dest text-paper-100 transition-colors">Swiss Alps</span><span class="b-dot"></span><span class="text-paper-100/55">6 days</span><span class="b-dot"></span><span class="text-clay-300 font-semibold">from $3,450</span><span class="text-paper-100/85 font-semibold">Book →</span></a>
+          <a href="#packages" class="board-item flex items-center gap-5"><span class="text-clay-300">WL 041</span><i class="fa-solid fa-plane text-clay-400 text-[10px]"></i><span class="b-dest text-paper-100 transition-colors">Ha Long Bay</span><span class="b-dot"></span><span class="text-paper-100/55">8 days</span><span class="b-dot"></span><span class="text-clay-300 font-semibold">from $690</span><span class="text-paper-100/85 font-semibold">Book →</span></a>
+          <a href="#packages" class="board-item flex items-center gap-5"><span class="text-clay-300">WL 056</span><i class="fa-solid fa-plane text-clay-400 text-[10px]"></i><span class="b-dest text-paper-100 transition-colors">Cappadocia</span><span class="b-dot"></span><span class="text-paper-100/55">4 days</span><span class="b-dot"></span><span class="text-clay-300 font-semibold">from $740</span><span class="text-paper-100/85 font-semibold">Book →</span></a>
+          <a href="#packages" class="board-item flex items-center gap-5"><span class="text-clay-300">WL 063</span><i class="fa-solid fa-plane text-clay-400 text-[10px]"></i><span class="b-dest text-paper-100 transition-colors">Lake District</span><span class="b-dot"></span><span class="text-paper-100/55">5 days</span><span class="b-dot"></span><span class="text-clay-300 font-semibold">from $1,180</span><span class="text-paper-100/85 font-semibold">Book →</span></a>
+        </div>
+        <div class="flex items-center gap-5 pr-10 font-mono text-[11px] tracking-[0.14em] uppercase whitespace-nowrap" aria-hidden="true">
+          <a href="#packages" class="board-item flex items-center gap-5"><span class="text-clay-300">WL 018</span><i class="fa-solid fa-plane text-clay-400 text-[10px]"></i><span class="b-dest text-paper-100 transition-colors">Bali</span><span class="b-dot"></span><span class="text-paper-100/55">5 days</span><span class="b-dot"></span><span class="text-clay-300 font-semibold">from $1,200</span><span class="text-paper-100/85 font-semibold">Book →</span></a>
+          <a href="#packages" class="board-item flex items-center gap-5"><span class="text-clay-300">WL 024</span><i class="fa-solid fa-plane text-clay-400 text-[10px]"></i><span class="b-dest text-paper-100 transition-colors">Paris</span><span class="b-dot"></span><span class="text-paper-100/55">7 days</span><span class="b-dot"></span><span class="text-clay-300 font-semibold">from $2,100</span><span class="text-paper-100/85 font-semibold">Book →</span></a>
+          <a href="#packages" class="board-item flex items-center gap-5"><span class="text-clay-300">WL 032</span><i class="fa-solid fa-plane text-clay-400 text-[10px]"></i><span class="b-dest text-paper-100 transition-colors">Swiss Alps</span><span class="b-dot"></span><span class="text-paper-100/55">6 days</span><span class="b-dot"></span><span class="text-clay-300 font-semibold">from $3,450</span><span class="text-paper-100/85 font-semibold">Book →</span></a>
+          <a href="#packages" class="board-item flex items-center gap-5"><span class="text-clay-300">WL 041</span><i class="fa-solid fa-plane text-clay-400 text-[10px]"></i><span class="b-dest text-paper-100 transition-colors">Ha Long Bay</span><span class="b-dot"></span><span class="text-paper-100/55">8 days</span><span class="b-dot"></span><span class="text-clay-300 font-semibold">from $690</span><span class="text-paper-100/85 font-semibold">Book →</span></a>
+          <a href="#packages" class="board-item flex items-center gap-5"><span class="text-clay-300">WL 056</span><i class="fa-solid fa-plane text-clay-400 text-[10px]"></i><span class="b-dest text-paper-100 transition-colors">Cappadocia</span><span class="b-dot"></span><span class="text-paper-100/55">4 days</span><span class="b-dot"></span><span class="text-clay-300 font-semibold">from $740</span><span class="text-paper-100/85 font-semibold">Book →</span></a>
+          <a href="#packages" class="board-item flex items-center gap-5"><span class="text-clay-300">WL 063</span><i class="fa-solid fa-plane text-clay-400 text-[10px]"></i><span class="b-dest text-paper-100 transition-colors">Lake District</span><span class="b-dot"></span><span class="text-paper-100/55">5 days</span><span class="b-dot"></span><span class="text-clay-300 font-semibold">from $1,180</span><span class="text-paper-100/85 font-semibold">Book →</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== ABOUT ===================== -->
+<section id="about" class="py-24 lg:py-32">
+  <div class="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 lg:gap-20 items-center">
+
+    <!-- Image stack + stamp -->
+    <div class="reveal relative lg:pr-14 pb-12">
+      <img src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=900&q=80" alt="Traveler overlooking the mountains" loading="lazy" class="w-full sm:w-[86%] h-[380px] sm:h-[470px] object-cover rounded-[2rem] border-[6px] border-paper-50 shadow-[0_28px_60px_-28px_rgba(30,26,21,0.45)]">
+      <img src="https://images.unsplash.com/photo-1527631746610-bca00a040d60?auto=format&fit=crop&w=500&q=80" alt="Mountain road scenery" loading="lazy" class="absolute -bottom-2 right-0 sm:right-1 w-40 h-40 sm:w-56 sm:h-56 object-cover rounded-3xl border-[6px] border-paper-100 shadow-xl rotate-3">
+      <div class="absolute -top-7 -left-2 w-24 h-24 sm:w-28 sm:h-28 rounded-full border-2 border-dashed border-clay-500 bg-paper-100/85 backdrop-blur-sm grid place-items-center rotate-[-10deg] text-clay-600 font-mono">
+        <div class="text-center leading-tight">
+          <p class="text-[8px] tracking-[0.3em] uppercase">Est.</p>
+          <p class="text-lg font-semibold">2015</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Text -->
+    <div>
+      <div class="reveal" data-delay="80">
+        <span class="eyebrow">Who we are</span>
+        <h2 class="mt-4 font-display text-3xl sm:text-5xl font-medium text-ink-900 leading-[1.05]">
+          We create memories,<br><span class="italic text-clay-500">not just trips.</span>
+        </h2>
+      </div>
+
+      <p class="reveal mt-6 max-w-xl text-sm sm:text-base font-light leading-relaxed" data-delay="160">
+        Our journey began with a simple passion: to help people discover the hidden gems of
+        our planet. We don&rsquo;t just book tickets — we curate experiences that linger in
+        your heart long after the tan lines fade.
+      </p>
+
+      <div class="reveal mt-10 grid grid-cols-3 gap-6 border-t border-dashed border-ink-900/30 pt-7" data-delay="240">
+        <div>
+          <h3 class="font-display text-3xl sm:text-4xl font-medium text-ink-900"><span class="counter" data-target="10">0</span>+</h3>
+          <p class="m-label mt-2">Years experience</p>
+        </div>
+        <div>
+          <h3 class="font-display text-3xl sm:text-4xl font-medium text-ink-900"><span class="counter" data-target="50">0</span>k+</h3>
+          <p class="m-label mt-2">Happy travelers</p>
+        </div>
+        <div>
+          <h3 class="font-display text-3xl sm:text-4xl font-medium text-ink-900"><span class="counter" data-target="100">0</span>+</h3>
+          <p class="m-label mt-2">Destinations</p>
+        </div>
+      </div>
+
+      <div class="reveal grid sm:grid-cols-2 gap-5 mt-10" data-delay="320">
+        <div class="bg-paper-50 border border-ink-900/12 rounded-2xl p-5 flex gap-4 hover:border-clay-500/50 hover:-translate-y-1 transition-all duration-300">
+          <div class="w-11 h-11 shrink-0 rounded-xl bg-clay-500/10 border border-clay-500/30 text-clay-600 grid place-items-center">
+            <i class="fa-solid fa-eye text-sm"></i>
+          </div>
+          <div>
+            <h4 class="font-display text-lg font-medium text-ink-900">Our Vision</h4>
+            <p class="text-[13px] font-light leading-relaxed mt-1">To be the world&rsquo;s most trusted travel companion.</p>
+          </div>
+        </div>
+        <div class="bg-paper-50 border border-ink-900/12 rounded-2xl p-5 flex gap-4 hover:border-clay-500/50 hover:-translate-y-1 transition-all duration-300">
+          <div class="w-11 h-11 shrink-0 rounded-xl bg-clay-500/10 border border-clay-500/30 text-clay-600 grid place-items-center">
+            <i class="fa-solid fa-bullseye text-sm"></i>
+          </div>
+          <div>
+            <h4 class="font-display text-lg font-medium text-ink-900">Our Mission</h4>
+            <p class="text-[13px] font-light leading-relaxed mt-1">Making luxury travel accessible to every explorer.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== DESTINATIONS ===================== -->
+<section id="destinations" class="py-24 bg-paper-50 border-y border-ink-900/10">
+  <div class="max-w-7xl mx-auto px-6">
+
+    <div class="reveal flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
+      <div>
+        <span class="eyebrow">Choose your adventure</span>
+        <h2 class="mt-4 font-display text-3xl sm:text-5xl font-medium text-ink-900">Popular destinations</h2>
+      </div>
+      <p class="m-label">06 — curated this season</p>
+    </div>
+
+    <div class="reveal grid grid-cols-2 lg:grid-cols-4 lg:auto-rows-[225px] gap-4 lg:gap-5" data-delay="120">
+
+      <figure class="group relative col-span-2 h-80 lg:h-auto lg:col-span-2 lg:row-span-2 rounded-[1.6rem] overflow-hidden cursor-pointer">
+        <img src="https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=1200&q=80" alt="The Taj Mahal at dawn" loading="lazy" class="absolute inset-0 w-full h-full object-cover transition-transform duration-[1100ms] ease-out group-hover:scale-105" draggable="false">
+        <span class="absolute top-4 left-4 px-3 py-1.5 rounded-full bg-paper-100/90 backdrop-blur-sm font-mono text-[9px] uppercase tracking-[0.2em] text-ink-900 font-medium">Domestic</span>
+        <figcaption class="absolute inset-x-0 bottom-0 p-5 sm:p-6 bg-gradient-to-t from-ink-900/85 via-ink-900/30 to-transparent">
+          <div class="flex items-center justify-between gap-3">
+            <h3 class="font-display text-xl sm:text-2xl text-paper-50">The Taj Mahal, India</h3>
+            <i class="fa-solid fa-arrow-right text-clay-300 text-sm opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300"></i>
+          </div>
+          <p class="text-[12px] sm:text-sm text-paper-100/80 font-light mt-1">Experience the symbol of eternal love.</p>
+        </figcaption>
+      </figure>
+
+      <figure class="group relative h-64 lg:h-auto rounded-[1.6rem] overflow-hidden cursor-pointer">
+        <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=700&q=80" alt="Paris, France" loading="lazy" class="absolute inset-0 w-full h-full object-cover transition-transform duration-[1100ms] ease-out group-hover:scale-105" draggable="false">
+        <span class="absolute top-4 left-4 px-3 py-1.5 rounded-full bg-paper-100/90 backdrop-blur-sm font-mono text-[9px] uppercase tracking-[0.2em] text-ink-900 font-medium">International</span>
+        <figcaption class="absolute inset-x-0 bottom-0 p-5 bg-gradient-to-t from-ink-900/85 via-ink-900/30 to-transparent">
+          <h3 class="font-display text-lg text-paper-50">Paris, France</h3>
+          <p class="text-[11px] text-paper-100/75 font-light mt-0.5">The city of lights and world-class art.</p>
+        </figcaption>
+      </figure>
+
+      <figure class="group relative h-64 lg:h-auto rounded-[1.6rem] overflow-hidden cursor-pointer">
+        <img src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=700&q=80" alt="Tokyo, Japan" loading="lazy" class="absolute inset-0 w-full h-full object-cover transition-transform duration-[1100ms] ease-out group-hover:scale-105" draggable="false">
+        <span class="absolute top-4 left-4 px-3 py-1.5 rounded-full bg-paper-100/90 backdrop-blur-sm font-mono text-[9px] uppercase tracking-[0.2em] text-ink-900 font-medium">Adventure</span>
+        <figcaption class="absolute inset-x-0 bottom-0 p-5 bg-gradient-to-t from-ink-900/85 via-ink-900/30 to-transparent">
+          <h3 class="font-display text-lg text-paper-50">Tokyo, Japan</h3>
+          <p class="text-[11px] text-paper-100/75 font-light mt-0.5">A neon-lit blend of tradition and tech.</p>
+        </figcaption>
+      </figure>
+
+      <figure class="group relative h-64 lg:h-auto rounded-[1.6rem] overflow-hidden cursor-pointer">
+        <img src="https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&w=700&q=80" alt="The Maldives" loading="lazy" class="absolute inset-0 w-full h-full object-cover transition-transform duration-[1100ms] ease-out group-hover:scale-105" draggable="false">
+        <span class="absolute top-4 left-4 px-3 py-1.5 rounded-full bg-paper-100/90 backdrop-blur-sm font-mono text-[9px] uppercase tracking-[0.2em] text-ink-900 font-medium">Honeymoon</span>
+        <figcaption class="absolute inset-x-0 bottom-0 p-5 bg-gradient-to-t from-ink-900/85 via-ink-900/30 to-transparent">
+          <h3 class="font-display text-lg text-paper-50">The Maldives</h3>
+          <p class="text-[11px] text-paper-100/75 font-light mt-0.5">Private villas over turquoise waters.</p>
+        </figcaption>
+      </figure>
+
+      <figure class="group relative h-64 lg:h-auto rounded-[1.6rem] overflow-hidden cursor-pointer">
+        <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=700&q=80" alt="Yosemite, USA" loading="lazy" class="absolute inset-0 w-full h-full object-cover transition-transform duration-[1100ms] ease-out group-hover:scale-105" draggable="false">
+        <span class="absolute top-4 left-4 px-3 py-1.5 rounded-full bg-paper-100/90 backdrop-blur-sm font-mono text-[9px] uppercase tracking-[0.2em] text-ink-900 font-medium">Nature</span>
+        <figcaption class="absolute inset-x-0 bottom-0 p-5 bg-gradient-to-t from-ink-900/85 via-ink-900/30 to-transparent">
+          <h3 class="font-display text-lg text-paper-50">Yosemite, USA</h3>
+          <p class="text-[11px] text-paper-100/75 font-light mt-0.5">Majestic waterfalls and giant sequoias.</p>
+        </figcaption>
+      </figure>
+
+      <figure class="group relative col-span-2 h-64 lg:h-auto rounded-[1.6rem] overflow-hidden cursor-pointer">
+        <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1000&q=80" alt="Santorini, Greece" loading="lazy" class="absolute inset-0 w-full h-full object-cover transition-transform duration-[1100ms] ease-out group-hover:scale-105" draggable="false">
+        <span class="absolute top-4 left-4 px-3 py-1.5 rounded-full bg-paper-100/90 backdrop-blur-sm font-mono text-[9px] uppercase tracking-[0.2em] text-ink-900 font-medium">Culture</span>
+        <figcaption class="absolute inset-x-0 bottom-0 p-5 sm:p-6 bg-gradient-to-t from-ink-900/85 via-ink-900/30 to-transparent">
+          <div class="flex items-center justify-between gap-3">
+            <h3 class="font-display text-lg sm:text-xl text-paper-50">Santorini, Greece</h3>
+            <i class="fa-solid fa-arrow-right text-clay-300 text-sm opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300"></i>
+          </div>
+          <p class="text-[12px] text-paper-100/80 font-light mt-0.5">Whitewashed buildings and deep blue seas.</p>
+        </figcaption>
+      </figure>
+
+      <!-- CTA tile -->
+      <a href="#contact" class="group col-span-2 lg:h-auto rounded-[1.6rem] bg-clay-500 hover:bg-clay-600 text-paper-50 p-6 sm:p-8 flex flex-col justify-between transition-colors duration-300">
+        <span class="font-mono text-[10px] tracking-[0.25em] uppercase text-paper-100/80">100+ destinations</span>
+        <div class="mt-8">
+          <p class="font-display text-xl sm:text-2xl font-medium leading-snug">Tell us where you dream of going.</p>
+          <span class="inline-flex items-center gap-3 mt-4 font-mono text-[10px] uppercase tracking-[0.22em] font-semibold">
+            Start planning <i class="fa-solid fa-arrow-right text-[10px] group-hover:translate-x-1.5 transition-transform"></i>
+          </span>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PACKAGES ===================== -->
+<section id="packages" class="py-24 lg:py-32 bg-paper-200 border-b border-ink-900/10" style="--notch:#EFE6D7">
+  <div class="max-w-6xl mx-auto px-6">
+
+    <div class="reveal text-center max-w-2xl mx-auto">
+      <span class="eyebrow">Best deals for you</span>
+      <h2 class="mt-4 font-display text-3xl sm:text-5xl font-medium text-ink-900">Current tour packages</h2>
+    </div>
+
+    <div class="reveal mt-10 flex flex-col sm:flex-row sm:items-center justify-between gap-5" data-delay="100">
+      <div class="flex flex-wrap gap-2.5">
+        <button class="fbtn active" data-filter="all">All</button>
+        <button class="fbtn" data-filter="budget">Budget</button>
+        <button class="fbtn" data-filter="luxury">Luxury</button>
+        <button class="fbtn" data-filter="family">Family</button>
+      </div>
+      <p class="m-label">Showing <span id="pkgCount" class="text-clay-600 font-semibold">06</span> / 06 journeys</p>
+    </div>
+
+    <div id="pkgGrid" class="reveal mt-10 grid lg:grid-cols-2 gap-7 lg:gap-9" data-delay="180">
+
+      <!-- Featured: Bali (image right) -->
+      <article class="pkg-card relative flex flex-col sm:flex-row-reverse bg-paper-50 border border-clay-500/60 ring-1 ring-clay-500/30 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1" data-cat="luxury" data-destination="Bali, Indonesia">
+        <div class="relative h-48 sm:h-auto sm:self-stretch sm:w-[42%] shrink-0 overflow-hidden rounded-t-2xl sm:rounded-t-none sm:rounded-r-2xl">
+          <img src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=800&q=80" alt="Bali temple among palm trees" loading="lazy" class="absolute inset-0 w-full h-full object-cover" draggable="false">
+          <span class="absolute top-4 left-4 px-3 py-1.5 rounded-full bg-paper-100/90 backdrop-blur-sm font-mono text-[9px] uppercase tracking-[0.2em] text-ink-900 font-medium">Luxury</span>
+          <span class="stamp absolute top-4 right-4">Best value</span>
+        </div>
+        <div class="flex-1 flex flex-col">
+          <div class="p-6 sm:p-7 pb-5">
+            <div class="flex gap-5 font-mono text-[10px] uppercase tracking-[0.15em] text-ink-500">
+              <span class="flex items-center gap-2"><i class="fa-regular fa-clock text-clay-500"></i>5 days</span>
+              <span class="flex items-center gap-2"><i class="fa-regular fa-user text-clay-500"></i>2 persons</span>
+            </div>
+            <h3 class="mt-3 font-display text-2xl font-medium text-ink-900">Bali Tropical Escape</h3>
+            <ul class="mt-4 space-y-2 text-[13px] font-light text-ink-700">
+              <li class="flex items-center gap-3"><i class="fa-solid fa-check text-clay-500 text-[10px]"></i>Private pool villa</li>
+              <li class="flex items-center gap-3"><i class="fa-solid fa-check text-clay-500 text-[10px]"></i>Airport transfers</li>
+              <li class="flex items-center gap-3"><i class="fa-solid fa-check text-clay-500 text-[10px]"></i>Daily breakfast</li>
+            </ul>
+          </div>
+          <div class="perfo"></div>
+          <div class="px-6 sm:px-7 py-5 flex items-center justify-between gap-4">
+            <div>
+              <span class="font-mono text-[11px] text-ink-400 line-through">$1,500</span>
+              <span class="font-display text-2xl font-semibold text-clay-600 ml-2">$1,200</span>
+            </div>
+            <button type="button" class="prefill-dest px-5 py-2.5 rounded-full bg-ink-900 text-paper-100 font-semibold text-[10px] uppercase tracking-[0.18em] hover:bg-clay-600 transition-colors">Book Now</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Paris -->
+      <article class="pkg-card relative flex flex-col sm:flex-row bg-paper-50 border border-ink-900/15 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1" data-cat="luxury" data-destination="Paris, France">
+        <div class="relative h-48 sm:h-auto sm:self-stretch sm:w-[42%] shrink-0 overflow-hidden rounded-t-2xl sm:rounded-t-none sm:rounded-l-2xl">
+          <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=80" alt="Eiffel Tower, Paris" loading="lazy" class="absolute inset-0 w-full h-full object-cover" draggable="false">
+          <span class="absolute top-4 left-4 px-3 py-1.5 rounded-full bg-paper-100/90 backdrop-blur-sm font-mono text-[9px] uppercase tracking-[0.2em] text-ink-900 font-medium">Luxury</span>
+        </div>
+        <div class="flex-1 flex flex-col">
+          <div class="p-6 sm:p-7 pb-5">
+            <div class="flex gap-5 font-mono text-[10px] uppercase tracking-[0.15em] text-ink-500">
+              <span class="flex items-center gap-2"><i class="fa-regular fa-clock text-clay-500"></i>7 days</span>
+              <span class="flex items-center gap-2"><i class="fa-regular fa-user text-clay-500"></i>2 persons</span>
+            </div>
+            <h3 class="mt-3 font-display text-2xl font-medium text-ink-900">Parisian Romance</h3>
+            <ul class="mt-4 space-y-2 text-[13px] font-light text-ink-700">
+              <li class="flex items-center gap-3"><i class="fa-solid fa-check text-clay-500 text-[10px]"></i>Louvre museum pass</li>
+              <li class="flex items-center gap-3"><i class="fa-solid fa-check text-clay-500 text-[10px]"></i>Seine river cruise</li>
+              <li class="flex items-center gap-3"><i class="fa-solid fa-check text-clay-500 text-[10px]"></i>Central boutique hotel</li>
+            </ul>
+          </div>
+          <div class="perfo"></div>
+          <div class="px-6 sm:px-7 py-5 flex items-center justify-between gap-4">
+            <span class="font-display text-2xl font-semibold text-clay-600">$2,100</span>
+            <button type="button" class="prefill-dest px-5 py-2.5 rounded-full bg-ink-900 text-paper-100 font-semibold text-[10px] uppercase tracking-[0.18em] hover:bg-clay-600 transition-colors">Book Now</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Swiss Alps -->
+      <article class="pkg-card relative flex flex-col sm:flex-row bg-paper-50 border border-ink-900/15 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1" data-cat="family" data-destination="Swiss Alps, Switzerland">
+        <div class="relative h-48 sm:h-auto sm:self-stretch sm:w-[42%] shrink-0 overflow-hidden rounded-t-2xl sm:rounded-t-none sm:rounded-l-2xl">
+          <img src="https://images.unsplash.com/photo-1594069758873-e79e9075eb7d?auto=format&fit=crop&w=800&q=80" alt="Swiss Alps mountain village" loading="lazy" class="absolute inset-0 w-full h-full object-cover" draggable="false">
+          <span class="absolute top-4 left-4 px-3 py-1.5 rounded-full bg-paper-100/90 backdrop-blur-sm font-mono text-[9px] uppercase tracking-[0.2em] text-ink-900 font-medium">Family</span>
+        </div>
+        <div class="flex-1 flex flex-col">
+          <div class="p-6 sm:p-7 pb-5">
+            <div class="flex gap-5 font-mono text-[10px] uppercase tracking-[0.15em] text-ink-500">
+              <span class="flex items-center gap-2"><i class="fa-regular fa-clock text-clay-500"></i>6 days</span>
+              <span class="flex items-center gap-2"><i class="fa-regular fa-user text-clay-500"></i>4 persons</span>
+            </div>
+            <h3 class="mt-3 font-display text-2xl font-medium text-ink-900">Swiss Alps Family</h3>
+            <ul class="mt-4 space-y-2 text-[13px] font-light text-ink-700">
+              <li class="flex items-center gap-3"><i class="fa-solid fa-check text-clay-500 text-[10px]"></i>Mountain cabin stay</li>
+              <li class="flex items-center gap-3"><i class="fa-solid fa-check text-clay-500 text-[10px]"></i>Skiing equipment</li>
+              <li class="flex items-center gap-3"><i class="fa-solid fa-check text-clay-500 text-[10px]"></i>Local train pass</li>
+            </ul>
+          </div>
+          <div class="perfo"></div>
+          <div class="px-6 sm:px-7 py-5 flex items-center justify-between gap-4">
+            <span class="font-display text-2xl font-semibold text-clay-600">$3,450</span>
+            <button type="button" class="prefill-dest px-5 py-2.5 rounded-full bg-ink-900 text-paper-100 font-semibold text-[10px] uppercase tracking-[0.18em] hover:bg-clay-600 transition-colors">Book Now</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Ha Long Bay -->
+      <article class="pkg-card relative flex flex-col sm:flex-row bg-paper-50 border border-ink-900/15 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1" data-cat="budget" data-destination="Ha Long Bay, Vietnam">
+        <div class="relative h-48 sm:h-auto sm:self-stretch sm:w-[42%] shrink-0 overflow-hidden rounded-t-2xl sm:rounded-t-none sm:rounded-l-2xl">
+          <img src="https://images.unsplash.com/photo-1528127269322-539801943597?auto=format&fit=crop&w=800&q=80" alt="Limestone islands of Ha Long Bay" loading="lazy" class="absolute inset-0 w-full h-full object-cover" draggable="false">
+          <span class="absolute top-4 left-4 px-3 py-1.5 rounded-full bg-paper-100/90 backdrop-blur-sm font-mono text-[9px] uppercase tracking-[0.2em] text-ink-900 font-medium">Budget</span>
+        </div>
+        <div class="flex-1 flex flex-col">
+          <div class="p-6 sm:p-7 pb-5">
+            <div class="flex gap-5 font-mono text-[10px] uppercase tracking-[0.15em] text-ink-500">
+              <span class="flex items-center gap-2"><i class="fa-regular fa-clock text-clay-500"></i>8 days</span>
+              <span class="flex items-center gap-2"><i class="fa-regular fa-user text-clay-500"></i>2 persons</span>
+            </div>
+            <h3 class="mt-3 font-display text-2xl font-medium text-ink-900">Ha Long Bay Cruiser</h3>
+            <ul class="mt-4 space-y-2 text-[13px] font-light text-ink-700">
+              <li class="flex items-center gap-3"><i class="fa-solid fa-check text-clay-500 text-[10px]"></i>Overnight junk boat</li>
+              <li class="flex items-center gap-3"><i class="fa-solid fa-check text-clay-500 text-[10px]"></i>Kayak &amp; cave tours</li>
+              <li class="flex items-center gap-3"><i class="fa-solid fa-check text-clay-500 text-[10px]"></i>Street food nights</li>
+            </ul>
+          </div>
+          <div class="perfo"></div>
+          <div class="px-6 sm:px-7 py-5 flex items-center justify-between gap-4">
+            <span class="font-display text-2xl font-semibold text-clay-600">$690</span>
+            <button type="button" class="prefill-dest px-5 py-2.5 rounded-full bg-ink-900 text-paper-100 font-semibold text-[10px] uppercase tracking-[0.18em] hover:bg-clay-600 transition-colors">Book Now</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Cappadocia -->
+      <article class="pkg-card relative flex flex-col sm:flex-row bg-paper-50 border border-ink-900/15 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1" data-cat="budget" data-destination="Cappadocia, Türkiye">
+        <div class="relative h-48 sm:h-auto sm:self-stretch sm:w-[42%] shrink-0 overflow-hidden rounded-t-2xl sm:rounded-t-none sm:rounded-l-2xl">
+          <img src="https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=800&q=80" alt="Hot air balloons over Cappadocia" loading="lazy" class="absolute inset-0 w-full h-full object-cover" draggable="false">
+          <span class="absolute top-4 left-4 px-3 py-1.5 rounded-full bg-paper-100/90 backdrop-blur-sm font-mono text-[9px] uppercase tracking-[0.2em] text-ink-900 font-medium">Budget</span>
+        </div>
+        <div class="flex-1 flex flex-col">
+          <div class="p-6 sm:p-7 pb-5">
+            <div class="flex gap-5 font-mono text-[10px] uppercase tracking-[0.15em] text-ink-500">
+              <span class="flex items-center gap-2"><i class="fa-regular fa-clock text-clay-500"></i>4 days</span>
+              <span class="flex items-center gap-2"><i class="fa-regular fa-user text-clay-500"></i>2 persons</span>
+            </div>
+            <h3 class="mt-3 font-display text-2xl font-medium text-ink-900">Cappadocia Dawn</h3>
+            <ul class="mt-4 space-y-2 text-[13px] font-light text-ink-700">
+              <li class="flex items-center gap-3"><i class="fa-solid fa-check text-clay-500 text-[10px]"></i>Balloon ride at sunrise</li>
+              <li class="flex items-center gap-3"><i class="fa-solid fa-check text-clay-500 text-[10px]"></i>Cave hotel stay</li>
+              <li class="flex items-center gap-3"><i class="fa-solid fa-check text-clay-500 text-[10px]"></i>Valley hikes</li>
+            </ul>
+          </div>
+          <div class="perfo"></div>
+          <div class="px-6 sm:px-7 py-5 flex items-center justify-between gap-4">
+            <span class="font-display text-2xl font-semibold text-clay-600">$740</span>
+            <button type="button" class="prefill-dest px-5 py-2.5 rounded-full bg-ink-900 text-paper-100 font-semibold text-[10px] uppercase tracking-[0.18em] hover:bg-clay-600 transition-colors">Book Now</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Lake District -->
+      <article class="pkg-card relative flex flex-col sm:flex-row bg-paper-50 border border-ink-900/15 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1" data-cat="family" data-destination="Lake District, England">
+        <div class="relative h-48 sm:h-auto sm:self-stretch sm:w-[42%] shrink-0 overflow-hidden rounded-t-2xl sm:rounded-t-none sm:rounded-l-2xl">
+          <img src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=800&q=80" alt="Canoe on an emerald lake" loading="lazy" class="absolute inset-0 w-full h-full object-cover" draggable="false">
+          <span class="absolute top-4 left-4 px-3 py-1.5 rounded-full bg-paper-100/90 backdrop-blur-sm font-mono text-[9px] uppercase tracking-[0.2em] text-ink-900 font-medium">Family</span>
+        </div>
+        <div class="flex-1 flex flex-col">
+          <div class="p-6 sm:p-7 pb-5">
+            <div class="flex gap-5 font-mono text-[10px] uppercase tracking-[0.15em] text-ink-500">
+              <span class="flex items-center gap-2"><i class="fa-regular fa-clock text-clay-500"></i>5 days</span>
+              <span class="flex items-center gap-2"><i class="fa-regular fa-user text-clay-500"></i>4 persons</span>
+            </div>
+            <h3 class="mt-3 font-display text-2xl font-medium text-ink-900">Lakes &amp; Trails Family</h3>
+            <ul class="mt-4 space-y-2 text-[13px] font-light text-ink-700">
+              <li class="flex items-center gap-3"><i class="fa-solid fa-check text-clay-500 text-[10px]"></i>Canoe days</li>
+              <li class="flex items-center gap-3"><i class="fa-solid fa-check text-clay-500 text-[10px]"></i>Forest cabins</li>
+              <li class="flex items-center gap-3"><i class="fa-solid fa-check text-clay-500 text-[10px]"></i>Ranger-led walks</li>
+            </ul>
+          </div>
+          <div class="perfo"></div>
+          <div class="px-6 sm:px-7 py-5 flex items-center justify-between gap-4">
+            <span class="font-display text-2xl font-semibold text-clay-600">$1,180</span>
+            <button type="button" class="prefill-dest px-5 py-2.5 rounded-full bg-ink-900 text-paper-100 font-semibold text-[10px] uppercase tracking-[0.18em] hover:bg-clay-600 transition-colors">Book Now</button>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===================== SERVICES ===================== -->
+<section id="services" class="py-20 lg:py-24 bg-ink-900 text-paper-100">
+  <div class="max-w-7xl mx-auto px-6">
+
+    <div class="reveal flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+      <div>
+        <span class="eyebrow !text-clay-300">Full-service travel desk</span>
+        <h2 class="mt-4 font-display text-3xl sm:text-4xl font-medium">Every detail, handled.</h2>
+      </div>
+      <p class="font-mono text-[10px] uppercase tracking-[0.22em] text-paper-100/50">One call · 05 services</p>
+    </div>
+
+    <div class="mt-12 grid sm:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-6">
+      <div class="reveal group hover:-translate-y-1.5 transition-transform duration-300" data-delay="60">
+        <span class="font-mono text-[10px] tracking-[0.25em] text-clay-300">01</span>
+        <div class="w-12 h-12 mt-4 rounded-full border border-clay-400/50 text-clay-300 grid place-items-center group-hover:bg-clay-500 group-hover:text-ink-900 group-hover:border-clay-500 transition-colors duration-300">
+          <i class="fa-solid fa-plane"></i>
+        </div>
+        <h4 class="mt-5 font-display text-lg font-medium">Flight Booking</h4>
+        <p class="mt-2 text-[13px] font-light text-paper-100/60 leading-relaxed">Multi-airline fares, held and ticketed in one call.</p>
+      </div>
+      <div class="reveal group hover:-translate-y-1.5 transition-transform duration-300" data-delay="120">
+        <span class="font-mono text-[10px] tracking-[0.25em] text-clay-300">02</span>
+        <div class="w-12 h-12 mt-4 rounded-full border border-clay-400/50 text-clay-300 grid place-items-center group-hover:bg-clay-500 group-hover:text-ink-900 group-hover:border-clay-500 transition-colors duration-300">
+          <i class="fa-solid fa-bed"></i>
+        </div>
+        <h4 class="mt-5 font-display text-lg font-medium">Hotel Booking</h4>
+        <p class="mt-2 text-[13px] font-light text-paper-100/60 leading-relaxed">Hand-picked stays, from riads to overwater villas.</p>
+      </div>
+      <div class="reveal group hover:-translate-y-1.5 transition-transform duration-300" data-delay="180">
+        <span class="font-mono text-[10px] tracking-[0.25em] text-clay-300">03</span>
+        <div class="w-12 h-12 mt-4 rounded-full border border-clay-400/50 text-clay-300 grid place-items-center group-hover:bg-clay-500 group-hover:text-ink-900 group-hover:border-clay-500 transition-colors duration-300">
+          <i class="fa-solid fa-car"></i>
+        </div>
+        <h4 class="mt-5 font-display text-lg font-medium">Car Rental</h4>
+        <p class="mt-2 text-[13px] font-light text-paper-100/60 leading-relaxed">Door-to-door vehicles, with drivers on request.</p>
+      </div>
+      <div class="reveal group hover:-translate-y-1.5 transition-transform duration-300" data-delay="240">
+        <span class="font-mono text-[10px] tracking-[0.25em] text-clay-300">04</span>
+        <div class="w-12 h-12 mt-4 rounded-full border border-clay-400/50 text-clay-300 grid place-items-center group-hover:bg-clay-500 group-hover:text-ink-900 group-hover:border-clay-500 transition-colors duration-300">
+          <i class="fa-solid fa-map-location-dot"></i>
+        </div>
+        <h4 class="mt-5 font-display text-lg font-medium">Tour Guide</h4>
+        <p class="mt-2 text-[13px] font-light text-paper-100/60 leading-relaxed">Local experts who skip the tourist traps.</p>
+      </div>
+      <div class="reveal group hover:-translate-y-1.5 transition-transform duration-300" data-delay="300">
+        <span class="font-mono text-[10px] tracking-[0.25em] text-clay-300">05</span>
+        <div class="w-12 h-12 mt-4 rounded-full border border-clay-400/50 text-clay-300 grid place-items-center group-hover:bg-clay-500 group-hover:text-ink-900 group-hover:border-clay-500 transition-colors duration-300">
+          <i class="fa-solid fa-passport"></i>
+        </div>
+        <h4 class="mt-5 font-display text-lg font-medium">Visa Assistance</h4>
+        <p class="mt-2 text-[13px] font-light text-paper-100/60 leading-relaxed">Paperwork, appointments, and approvals — handled.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== BOOKING / CONTACT ===================== -->
+<section id="contact" class="py-24 lg:py-32" style="--notch:#F6F1E8">
+  <div class="max-w-7xl mx-auto px-6 grid lg:grid-cols-12 gap-14 lg:gap-16 items-start">
+
+    <!-- Boarding-pass form -->
+    <div class="lg:col-span-7 reveal">
+      <div class="bg-paper-50 border border-ink-900/15 rounded-2xl shadow-[0_20px_50px_-30px_rgba(30,26,21,0.4)]">
+        <div class="flex items-center justify-between px-7 sm:px-9 pt-7 pb-5">
+          <h2 class="font-display text-2xl sm:text-3xl font-medium text-ink-900">Book your trip</h2>
+          <span class="m-label !text-clay-600">Form WL·B1</span>
+        </div>
+
+        <form id="bookingForm" class="px-7 sm:px-9 pb-7 space-y-6" novalidate-front>
+          <div class="grid sm:grid-cols-2 gap-6">
+            <div>
+              <label for="clientName" class="m-label block mb-2 !text-ink-500">Full name</label>
+              <input id="clientName" type="text" required autocomplete="name" placeholder="Ava Rodriguez" class="field">
+            </div>
+            <div>
+              <label for="destSelect" class="m-label block mb-2 !text-ink-500">Destination</label>
+              <div class="relative">
+                <select id="destSelect" required class="field appearance-none pr-10 cursor-pointer">
+                  <option value="" selected>Where are you headed?</option>
+                  <option>Bali, Indonesia</option>
+                  <option>Paris, France</option>
+                  <option>Tokyo, Japan</option>
+                  <option>The Maldives</option>
+                  <option>Yosemite, USA</option>
+                  <option>Santorini, Greece</option>
+                  <option>Swiss Alps, Switzerland</option>
+                  <option>Ha Long Bay, Vietnam</option>
+                  <option>Cappadocia, Türkiye</option>
+                  <option>Lake District, England</option>
+                  <option>Somewhere new — surprise me</option>
+                </select>
+                <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-clay-500 text-xs pointer-events-none"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid sm:grid-cols-2 gap-6">
+            <div>
+              <label for="dateInput" class="m-label block mb-2 !text-ink-500">Departure date</label>
+              <input id="dateInput" type="date" required class="field cursor-pointer">
+            </div>
+            <div>
+              <span class="m-label block mb-2 !text-ink-500">Travelers</span>
+              <div class="flex items-center gap-4">
+                <button type="button" id="travMinus" class="step-btn" aria-label="Fewer travelers"><i class="fa-solid fa-minus text-[10px]"></i></button>
+                <span id="travCount" class="font-mono text-lg font-semibold text-ink-900 w-8 text-center">2</span>
+                <button type="button" id="travPlus" class="step-btn" aria-label="More travelers"><i class="fa-solid fa-plus text-[10px]"></i></button>
+                <span class="m-label ml-1">Max 12</span>
+              </div>
+            </div>
+          </div>
+
+          <button id="submitBtn" type="submit" class="w-full inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-ink-900 text-paper-100 font-semibold text-xs uppercase tracking-[0.18em] hover:bg-clay-600 active:translate-y-0 hover:-translate-y-0.5 transition-all shadow-lg shadow-ink-900/15 disabled:opacity-70 disabled:cursor-wait">
+            Request Booking
+          </button>
+
+          <p class="m-label !tracking-[0.2em] text-center !text-ink-400">No payment now — we hold your seats for 48 hours</p>
+        </form>
+
+        <div class="perfo"></div>
+        <div class="px-7 sm:px-9 py-5 flex items-center justify-between gap-4">
+          <span class="m-label">Gate · anywhere</span>
+          <div class="barcode"></div>
+          <span class="m-label">WL·2026</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact side -->
+    <div class="lg:col-span-5 reveal" data-delay="140">
+      <span class="eyebrow">Prefer to talk?</span>
+      <h2 class="mt-4 font-display text-3xl sm:text-4xl font-medium text-ink-900 leading-tight">
+        Our travel designers<br><span class="italic text-clay-500">answer personally.</span>
+      </h2>
+      <p class="mt-5 text-sm font-light leading-relaxed max-w-md">No queues, no bots. Tell us where you&rsquo;re dreaming of, and we&rsquo;ll draw up an itinerary within a day.</p>
+
+      <div class="mt-10 space-y-7">
+        <div class="flex items-center gap-5">
+          <div class="w-11 h-11 shrink-0 rounded-xl bg-clay-500/10 border border-clay-500/30 text-clay-600 grid place-items-center text-sm">
+            <i class="fa-solid fa-phone"></i>
+          </div>
+          <div>
+            <p class="m-label">Direct line</p>
+            <p class="mt-1 text-sm font-medium text-ink-900">+1 234 567 890</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-5">
+          <div class="w-11 h-11 shrink-0 rounded-xl bg-clay-500/10 border border-clay-500/30 text-clay-600 grid place-items-center text-sm">
+            <i class="fa-solid fa-envelope"></i>
+          </div>
+          <div>
+            <p class="m-label">Email</p>
+            <p class="mt-1 text-sm font-medium text-ink-900">info@wanderlust.com</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-5">
+          <div class="w-11 h-11 shrink-0 rounded-xl bg-clay-500/10 border border-clay-500/30 text-clay-600 grid place-items-center text-sm">
+            <i class="fa-solid fa-location-dot"></i>
+          </div>
+          <div>
+            <p class="m-label">Studio</p>
+            <p class="mt-1 text-sm font-medium text-ink-900">123 Travel Lane, New York</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-5">
+          <div class="w-11 h-11 shrink-0 rounded-xl bg-clay-500/10 border border-clay-500/30 text-clay-600 grid place-items-center text-sm">
+            <i class="fa-regular fa-clock"></i>
+          </div>
+          <div>
+            <p class="m-label">Travel desk hours</p>
+            <p class="mt-1 text-sm font-medium text-ink-900">Mon &ndash; Sat · 9:00 &ndash; 19:00 EST</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-10 bg-paper-200/70 border border-dashed border-clay-500/50 rounded-2xl p-6 rotate-[-1deg]">
+        <p class="font-display italic text-clay-700 text-base leading-relaxed">&ldquo;The world is a book, and those who do not travel read only one page.&rdquo;</p>
+        <span class="m-label mt-3 block !text-ink-400">— Pinned above our studio desk</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===================== FOOTER ===================== -->
+<footer class="bg-ink-900 text-paper-100 pt-14 pb-8">
+  <div class="max-w-7xl mx-auto px-6">
+
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-8">
+      <div>
+        <a href="#home" class="font-display text-2xl text-paper-100">Wander<span class="italic font-medium text-clay-300">lust</span></a>
+        <p class="m-label !text-paper-100/40 mt-2">Travel co. · since 2015</p>
+      </div>
+
+      <div class="flex flex-wrap gap-x-8 gap-y-3 font-mono uppercase text-[10px] tracking-[0.2em] text-paper-100/60">
+        <a href="#home" class="hover:text-clay-300 transition-colors">Home</a>
+        <a href="#about" class="hover:text-clay-300 transition-colors">About</a>
+        <a href="#destinations" class="hover:text-clay-300 transition-colors">Destinations</a>
+        <a href="#packages" class="hover:text-clay-300 transition-colors">Packages</a>
+        <a href="#contact" class="hover:text-clay-300 transition-colors">Contact</a>
+      </div>
+
+      <div class="flex items-center gap-6 text-paper-100/60">
+        <a href="https://instagram.com" target="_blank" rel="noopener" class="hover:text-clay-300 transition-colors" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+        <a href="https://x.com" target="_blank" rel="noopener" class="hover:text-clay-300 transition-colors" aria-label="X"><i class="fa-brands fa-x-twitter"></i></a>
+        <a href="https://youtube.com" target="_blank" rel="noopener" class="hover:text-clay-300 transition-colors" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+      </div>
+    </div>
+
+    <div class="border-t border-white/10 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <p class="text-[11px] tracking-wide text-paper-100/50">&copy; 2026 WebNova Studio | RR Web Designers. All rights reserved.</p>
+      <p class="font-mono text-[9px] uppercase tracking-[0.3em] text-paper-100/35">Made for the restless</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ===================== INTERACTIONS ===================== -->
+<script>
+  const $  = (s, c = document) => c.querySelector(s);
+  const $$ = (s, c = document) => Array.from(c.querySelectorAll(s));
+
+  /* ---------- Nav: scroll state, scroll-spy, back-to-top ---------- */
+  const nav = $('#mainNav');
+  const toTop = $('#toTop');
+  const navLinks = $$('.nav-link');
+  const spySections = ['home', 'about', 'destinations', 'packages', 'services', 'contact']
+    .map(id => document.getElementById(id))
+    .filter(Boolean);
+
+  function onScroll() {
+    const y = window.scrollY;
+    nav.classList.toggle('scrolled', y > 40);
+
+    if (y > 640) toTop.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+    else toTop.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+
+    let current = 'home';
+    for (const sec of spySections) {
+      if (sec.id !== 'home' && sec.getBoundingClientRect().top <= 160) current = sec.id;
+    }
+    navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + current));
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+  toTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+  /* ---------- Mobile drawer ---------- */
+  const menuBtn  = $('#mobileMenuBtn');
+  const drawer   = $('#mobileDrawer');
+  const menuIcon = $('#menuToggleIcon');
+
+  function closeDrawer() {
+    drawer.classList.add('hidden');
+    menuIcon.className = 'fa-solid fa-bars text-lg';
+  }
+  menuBtn.addEventListener('click', () => {
+    drawer.classList.toggle('hidden');
+    menuIcon.className = drawer.classList.contains('hidden')
+      ? 'fa-solid fa-bars text-lg'
+      : 'fa-solid fa-xmark text-lg';
+  });
+  $$('.mobile-nav-link').forEach(a => a.addEventListener('click', closeDrawer));
+
+  /* ---------- Scroll reveals + counters ---------- */
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(en => {
+      if (!en.isIntersecting) return;
+      const el = en.target;
+      const delay = parseInt(el.dataset.delay || '0', 10);
+      el.classList.add('active');
+      setTimeout(() => {   // clean up so hover transitions stay snappy
+        el.classList.remove('reveal', 'active');
+        el.style.transitionDelay = '';
+      }, 950 + delay);
+      io.unobserve(el);
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  $$('.reveal').forEach(el => {
+    if (el.dataset.delay) el.style.transitionDelay = el.dataset.delay + 'ms';
+    io.observe(el);
+  });
+
+  const co = new IntersectionObserver((entries) => {
+    entries.forEach(en => {
+      if (!en.isIntersecting) return;
+      animateCounter(en.target);
+      co.unobserve(en.target);
+    });
+  }, { threshold: 0.5 });
+  $$('.counter').forEach(el => co.observe(el));
+
+  function animateCounter(el) {
+    const target = parseFloat(el.dataset.target);
+    const t0 = performance.now(), dur = 1600;
+    (function tick(now) {
+      const p = Math.min((now - t0) / dur, 1);
+      el.textContent = Math.round(target * (1 - Math.pow(1 - p, 4)));
+      if (p < 1) requestAnimationFrame(tick);
+    })(t0);
+  }
+
+  /* ---------- Hero boarding pass rotator ---------- */
+  const departures = [
+    { dest: 'Santorini, Greece',  meta: '6 days · 2 travelers', price: '$1,340', code: 'WL·01' },
+    { dest: 'Bali, Indonesia',   meta: '5 days · 2 travelers', price: '$1,200', code: 'WL·18' },
+    { dest: 'Tokyo, Japan',      meta: '7 days · 2 travelers', price: '$1,980', code: 'WL·24' },
+    { dest: 'The Maldives',      meta: '4 days · 2 travelers', price: '$2,450', code: 'WL·32' },
+    { dest: 'Yosemite, USA',     meta: '5 days · 4 travelers', price: '$1,690', code: 'WL·41' },
+    { dest: 'Paris, France',     meta: '7 days · 2 travelers', price: '$2,100', code: 'WL·56' },
+  ];
+  const ticketSwap = $('#ticketSwap');
+  let ticketIdx = 0;
+
+  setInterval(() => {
+    ticketIdx = (ticketIdx + 1) % departures.length;
+    ticketSwap.classList.add('switching');
+    setTimeout(() => {
+      const d = departures[ticketIdx];
+      $('#heroDest').textContent  = d.dest;
+      $('#heroMeta').textContent  = d.meta;
+      $('#heroPrice').textContent = d.price;
+      $('#heroCode').textContent  = d.code;
+      ticketSwap.classList.remove('switching');
+    }, 230);
+  }, 3400);
+
+  /* ---------- Package filtering ---------- */
+  const fbtns = $$('.fbtn');
+  const cards = $$('#pkgGrid .pkg-card');
+  const pkgCount = $('#pkgCount');
+
+  fbtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      fbtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const cat = btn.dataset.filter;
+      let shown = 0;
+
+      cards.forEach(card => {
+        const match = cat === 'all' || card.dataset.cat === cat;
+        if (match) {
+          shown++;
+          clearTimeout(card._t);
+          if (card.classList.contains('pkg-out') || card.style.display === 'none') {
+            card.style.display = '';
+            card.offsetHeight; // reflow so the transition re-runs
+            card.style.transitionDelay = (shown * 70) + 'ms';
+            card.classList.remove('pkg-out');
+            setTimeout(() => { card.style.transitionDelay = ''; }, 500);
+          }
+        } else {
+          card.style.transitionDelay = '';
+          card.classList.add('pkg-out');
+          clearTimeout(card._t);
+          card._t = setTimeout(() => { card.style.display = 'none'; }, 340);
+        }
+      });
+
+      pkgCount.textContent = String(shown).padStart(2, '0');
+    });
+  });
+
+  /* ---------- "Book Now" prefill from package cards ---------- */
+  $$('.prefill-dest').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const sel = $('#destSelect');
+      sel.value = btn.closest('.pkg-card').dataset.destination;
+      sel.classList.add('flash');
+      setTimeout(() => sel.classList.remove('flash'), 1600);
+      document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+      setTimeout(() => $('#clientName').focus({ preventScroll: true }), 800);
+    });
+  });
+
+  /* ---------- Travelers stepper ---------- */
+  const trav = { n: 2, min: 1, max: 12 };
+  const travCount = $('#travCount');
+  const travMinus = $('#travMinus');
+  const travPlus  = $('#travPlus');
+
+  function syncStepper() {
+    travCount.textContent = trav.n;
+    travMinus.disabled = trav.n <= trav.min;
+    travPlus.disabled  = trav.n >= trav.max;
+  }
+  travMinus.addEventListener('click', () => { trav.n = Math.max(trav.min, trav.n - 1); syncStepper(); });
+  travPlus.addEventListener('click',  () => { trav.n = Math.min(trav.max, trav.n + 1); syncStepper(); });
+  syncStepper();
+
+  /* ---------- Date input sensible defaults ---------- */
+  const dateInput = $('#dateInput');
+  function setDefaultDate() {
+    const fmt = d => d.toISOString().slice(0, 10);
+    dateInput.min = fmt(new Date());
+    dateInput.value = fmt(new Date(Date.now() + 21 * 864e5));
+  }
+  setDefaultDate();
+
+  /* ---------- Booking form + toast ---------- */
+  const form = $('#bookingForm');
+  const toast = $('#bookingToast');
+  const toastSub = $('#toastSub');
+  const submitBtn = $('#submitBtn');
+  const SUBMIT_LABEL = submitBtn.innerHTML;
+  let toastTimer = null;
+
+  function showToast(sub) {
+    toastSub.textContent = sub;
+    toast.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(hideToast, 4800);
+  }
+  function hideToast() {
+    toast.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+  }
+  $('#toastClose').addEventListener('click', hideToast);
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!form.reportValidity()) return; // keep native inline messages
+
+    const dest = $('#destSelect').value;
+    const date = dateInput.value ? new Date(dateInput.value + 'T12:00:00') : null;
+    const sub = `${dest} · ${trav.n} traveler${trav.n > 1 ? 's' : ''}` +
+      (date ? ` · dep. ${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : '');
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Sending Request';
+
+    setTimeout(() => {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = SUBMIT_LABEL;
+      form.reset();
+      trav.n = 2; syncStepper(); setDefaultDate();
+      showToast(sub);
+    }, 1100);
+  });
+</script>
+</body>
+</html>
